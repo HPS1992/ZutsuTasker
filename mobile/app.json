@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "template",
+    "slug": "template",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.zutsu.tasker",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.zutsu.tasker",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}

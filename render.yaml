@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: zutsu-tasker-backend
+    env: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: zutsu-tasker-db
+          property: connectionString
+      - key: USE_MOCK_AUTH
+        value: false
+
+databases:
+  - name: zutsu-tasker-db
+    databaseName: zutsu
+    user: zutsu_user
+    plan: free
