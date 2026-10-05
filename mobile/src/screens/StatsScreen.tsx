@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, FlatList, ActivityIndicator, Platform } from 'react-native';
-import { getEquityStats } from '../services/api';
+import { View, Text, StyleSheet, SafeAreaView, FlatList, ActivityIndicator, Platform, TouchableOpacity } from 'react-native';
+import { getEquityStats, getApiError } from '../services/api';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function StatsScreen() {
   const [stats, setStats] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => { getEquityStats().then(setStats).finally(() => setLoading(false)); }, []);
+  const fetchStats = () => {
+    setLoading(true);
+    setError(null);
+    getEquityStats().then(setStats).catch(error => setError(getApiError(error))).finally(() => setLoading(false));
+  };
+
+  useEffect(fetchStats, []);
 
   const renderItem = ({ item, index }: any) => {
     const isFirst = index === 0;
@@ -40,8 +47,10 @@ export default function StatsScreen() {
         </SafeAreaView>
       </LinearGradient>
 
-      {loading ? <ActivityIndicator style={{marginTop: 50}} color="#6366F1"/> : (
-        <FlatList data={stats.sort((a,b)=>b.points-a.points)} renderItem={renderItem} keyExtractor={i => i.name} contentContainerStyle={styles.list} />
+      {loading ? <ActivityIndicator style={{marginTop: 50}} color="#6366F1"/> : error ? (
+        <TouchableOpacity onPress={fetchStats} style={{ padding: 24 }}><Text style={{ color: '#B91C1C' }}>{error}</Text><Text style={{ color: '#5B3DF5', marginTop: 12 }}>Reintentar</Text></TouchableOpacity>
+      ) : (
+        <FlatList data={[...stats].sort((a,b)=>b.points-a.points)} renderItem={renderItem} keyExtractor={i => i.name} contentContainerStyle={styles.list} />
       )}
     </View>
   );

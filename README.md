@@ -14,7 +14,7 @@ Zutsu Tasker es una aplicación móvil gamificada diseñada para resolver la ges
 
 - **Frontend**: React Native + Expo + TypeScript + React Navigation.
 - **Backend**: Node.js + Express + TypeScript + Prisma ORM.
-- **Base de datos**: SQLite (Fácil de migrar a PostgreSQL).
+- **Base de datos**: PostgreSQL.
 - **Despliegue recomendado**: Frontend en Vercel/Expo Application Services (EAS). Backend en Render/Railway.
 
 ## 🚀 Instrucciones de Arranque
@@ -23,6 +23,7 @@ Zutsu Tasker es una aplicación móvil gamificada diseñada para resolver la ges
 ```bash
 cd backend
 npm install
+# Configura DATABASE_URL con la conexión PostgreSQL en backend/.env
 npx prisma db push      # Sincroniza esquema de base de datos
 npx prisma db seed      # Carga datos de prueba (Alex, Maria, Carlos)
 npm run dev             # Inicia el servidor en http://localhost:3000
@@ -46,4 +47,8 @@ El seed genera:
 - **Tareas**: Limpiar Baño (Pendiente), Bajar basura (Completada).
 - **Market**: "Librarse de fregar" (100pts), "Cena pagada" (1000pts).
 
-Inicia sesión con cualquier email (ej: `alex@test.com`) y el sistema te dará paso automático con el perfil de pruebas.
+Inicia sesión con uno de los usuarios del seed (ej: `alex@test.com`) y la contraseña `ZutsuTest123!`, o establece `SEED_PASSWORD` al ejecutar el seed. La app utiliza autenticación local con email y contraseña.
+
+## Compilar el APK Android
+
+Consulta [las instrucciones de compilación y comprobación](mobile/ANDROID_BUILD.md).

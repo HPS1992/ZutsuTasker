@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "seed": "tsx prisma/seed.ts",
-    "build": "tsc",
+    "build": "npx prisma generate && npx prisma db push && tsc",
+    "smoke": "npm run build && node scripts/smoke-test.cjs",
     "start": "node dist/server.js",
     "postinstall": "prisma generate"
   },

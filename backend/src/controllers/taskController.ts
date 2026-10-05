@@ -10,8 +10,17 @@ export const listTasks = async (req: Request, res: Response) => {
     const member = await prisma.groupMember.findFirst({ where: { user_id: user.id } });
     if (!member) return res.status(400).json({ error: 'No group found' });
     
-    const tasks = await taskService.getGroupTasks(member.group_id);
-    res.status(200).json(tasks);
+    const tasks = await prisma.taskInstance.findMany({
+      where: { group_id: member.group_id },
+      include: { template: true, assigned_user: true },
+      orderBy: { due_date: 'asc' }
+    });
+    const response = tasks.map(task => ({
+      ...task,
+      assigned_to: task.assigned_user,
+      bounty_points: taskService.calculateBounty(task, task.template.points)
+    }));
+    res.status(200).json(response);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -20,7 +29,7 @@ export const listTasks = async (req: Request, res: Response) => {
 export const createTask = async (req: Request, res: Response) => {
   try {
     const user = req.user;
-    const { title, category, points, due_date } = req.body;
+    const { title, points, due_date } = req.body;
     
     const member = await prisma.groupMember.findFirst({ where: { user_id: user.id } });
     if (!member) return res.status(400).json({ error: 'No group found' });
@@ -30,10 +39,7 @@ export const createTask = async (req: Request, res: Response) => {
       data: {
         group_id: member.group_id,
         title,
-        category,
-        duration_min: 15,
-        complexity: 2,
-        base_points: parseInt(points) || 20
+        points: parseInt(points) || 20
       }
     });
 

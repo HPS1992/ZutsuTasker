@@ -23,7 +23,8 @@ app.use('/api/group', groupRoutes);
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 app.get('/', (req, res) => res.json({ message: 'Zutsu Tasker API is running!' }));
 
-if (process.env.NODE_ENV !== 'production') {
+// Vercel imports the app; a direct Node/Docker launch must listen in production too.
+if (require.main === module) {
   app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 }
 

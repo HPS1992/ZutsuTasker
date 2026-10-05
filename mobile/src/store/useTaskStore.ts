@@ -1,11 +1,12 @@
 import { create } from 'zustand';
-import { getTasks, completeTask as completeTaskApi, approveTask as approveTaskApi, claimTask as claimTaskApi, stealTask as stealTaskApi, api } from '../services/api';
+import { getTasks, completeTask as completeTaskApi, approveTask as approveTaskApi, claimTask as claimTaskApi, stealTask as stealTaskApi, api, getApiError } from '../services/api';
 import { Alert } from 'react-native';
 import { triggerWowEffect, triggerStealEffect } from '../utils/SoundHaptics';
 
 interface TaskState {
   tasks: any[];
   loading: boolean;
+  error: string | null;
   fetchTasks: () => Promise<void>;
   completeTask: (id: string, photoUri?: string) => Promise<void>;
   approveTask: (id: string) => Promise<void>;
@@ -17,9 +18,12 @@ interface TaskState {
 export const useTaskStore = create<TaskState>((set, get) => ({
   tasks: [],
   loading: false,
+  error: null,
   fetchTasks: async () => {
-    set({ loading: true });
-    try { const data = await getTasks(); set({ tasks: data }); } finally { set({ loading: false }); }
+    set({ loading: true, error: null });
+    try { const data = await getTasks(); set({ tasks: data }); }
+    catch (error) { set({ error: getApiError(error) }); }
+    finally { set({ loading: false }); }
   },
   completeTask: async (id: string, photoUri?: string) => {
     const res = await completeTaskApi(id, photoUri);

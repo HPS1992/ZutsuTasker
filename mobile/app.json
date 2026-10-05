@@ -3,9 +3,22 @@
     "name": "Zutsu Tasker",
     "slug": "zutsu-tasker",
     "version": "1.0.0",
+    "jsEngine": "hermes",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "plugins": [
+      ["expo-splash-screen", {
+        "image": "./assets/icon.png",
+        "imageWidth": 200,
+        "backgroundColor": "#ffffff"
+      }]
+    ],
     "ios": {
       "bundleIdentifier": "com.zutsu.tasker",
       "supportsTablet": true

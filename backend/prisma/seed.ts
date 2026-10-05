@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -6,9 +7,10 @@ async function main() {
   console.log('Iniciando seed de datos falsos...');
 
   // 1. Crear usuarios
-  const user1 = await prisma.user.create({ data: { email: 'alex@test.com', name: 'Álex' } });
-  const user2 = await prisma.user.create({ data: { email: 'maria@test.com', name: 'María' } });
-  const user3 = await prisma.user.create({ data: { email: 'carlos@test.com', name: 'Carlos' } });
+  const password = await bcrypt.hash(process.env.SEED_PASSWORD || 'ZutsuTest123!', 10);
+  const user1 = await prisma.user.create({ data: { email: 'alex@test.com', name: 'Álex', password } });
+  const user2 = await prisma.user.create({ data: { email: 'maria@test.com', name: 'María', password } });
+  const user3 = await prisma.user.create({ data: { email: 'carlos@test.com', name: 'Carlos', password } });
 
   // 2. Crear Grupo
   const group = await prisma.group.create({
@@ -26,10 +28,10 @@ async function main() {
 
   // 4. Crear Plantillas de tareas
   const template1 = await prisma.taskTemplate.create({
-    data: { group_id: group.id, title: 'Bajar basura', category: 'Cocina', duration_min: 5, complexity: 1, base_points: 10 }
+    data: { group_id: group.id, title: 'Bajar basura', room_name: 'Cocina', room_icon: 'restaurant', points: 10 }
   });
   const template2 = await prisma.taskTemplate.create({
-    data: { group_id: group.id, title: 'Limpiar Baño', category: 'Limpieza', duration_min: 30, complexity: 3, base_points: 50 }
+    data: { group_id: group.id, title: 'Limpiar Baño', room_name: 'Baño', room_icon: 'water', points: 50 }
   });
 
   // 5. Crear Instancias de Tareas (asignadas y sin asignar)

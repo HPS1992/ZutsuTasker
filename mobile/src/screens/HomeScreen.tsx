@@ -15,6 +15,7 @@ export default function HomeScreen() {
   const [inviteCode, setInviteCode] = useState('');
 
   const fetchDashboard = () => {
+    setError(null);
     api.get('/users/dashboard')
       .then(res => setData(res.data))
       .catch(err => setError(err.message));
@@ -42,7 +43,7 @@ export default function HomeScreen() {
     catch(e) { Alert.alert('Error', 'Código inválido'); }
   };
 
-  if (error) return <SafeAreaView style={styles.container}><Text style={{padding:20, color:'red'}}>Error cargando: {error}</Text></SafeAreaView>;
+  if (error) return <SafeAreaView style={styles.container}><Text style={{padding:20, color:'red'}}>Error cargando: {error}</Text><TouchableOpacity onPress={fetchDashboard}><Text style={{ padding: 20, color: '#4F46E5' }}>Reintentar</Text></TouchableOpacity></SafeAreaView>;
   if (!data) return <SafeAreaView style={styles.container}><ActivityIndicator style={{marginTop: 50}} color="#4F46E5" /></SafeAreaView>;
 
   // Si el usuario acaba de registrarse y no tiene grupo
@@ -79,7 +80,7 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
             <Text style={styles.greeting}>¡Hola, {data.name}! 🚀</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Ajustes')}><Ionicons name="settings-outline" size={28} color="#4F46E5"/></TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Perfil')}><Ionicons name="settings-outline" size={28} color="#4F46E5"/></TouchableOpacity>
           </View>
           <Text style={styles.groupName}><Ionicons name="home" size={14}/> {data.groupName}</Text>
         </View>

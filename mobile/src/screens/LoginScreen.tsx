@@ -18,7 +18,7 @@ export default function LoginScreen() {
         await login(email, password);
       }
     } catch (err: any) {
-      Alert.alert('Error', err.message);
+      Alert.alert('Error', err.response?.data?.error || err.message);
     }
   };
 

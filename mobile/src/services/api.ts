@@ -1,8 +1,16 @@
 import axios from 'axios';
-import { Platform } from 'react-native';
 
 const API_URL = (typeof process !== 'undefined' && process.env && process.env.EXPO_PUBLIC_API_URL) ? process.env.EXPO_PUBLIC_API_URL : 'https://zutsu-tasker.vercel.app/api';
-export const api = axios.create({ baseURL: API_URL, headers: { 'Content-Type': 'application/json' } });
+export const api = axios.create({ baseURL: API_URL, timeout: 15000, headers: { 'Content-Type': 'application/json' } });
+
+export function getApiError(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const message = error.response?.data?.error;
+    if (typeof message === 'string') return message;
+    if (!error.response) return 'No se pudo conectar con el servidor. Comprueba tu conexión e inténtalo de nuevo.';
+  }
+  return error instanceof Error ? error.message : 'No se pudo completar la operación';
+}
 
 export const getTasks = async () => (await api.get(`/tasks`)).data;
 export const createTask = async (data: any) => (await api.post(`/tasks`, data)).data;

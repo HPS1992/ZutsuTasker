@@ -31,5 +31,6 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-# El comando de inicio incluye el despliegue automático de migraciones en prod
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
+# Este proyecto mantiene el esquema con db push y no tiene un historial de migraciones.
+# Sin --accept-data-loss: Prisma detiene cualquier cambio que pueda perder datos.
+CMD ["sh", "-c", "npx prisma db push --skip-generate && npm run start"]

@@ -27,7 +27,7 @@ const FREQUENCIES = [
 
 export default function TasksScreen() {
   const { user } = useAuth();
-  const { tasks, fetchTasks, completeTask } = useTaskStore();
+  const { tasks, fetchTasks, completeTask, loading, error } = useTaskStore();
   const [members, setMembers] = useState<any[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -71,8 +71,10 @@ export default function TasksScreen() {
   const handleComplete = async (item: any) => {
     try {
       if (item.template.requires_photo) {
-        let result = await ImagePicker.launchCameraAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.5 });
-        if (!result.canceled && result.assets[0].uri) {
+        const permission = await ImagePicker.requestCameraPermissionsAsync();
+        if (!permission.granted) return alert('Permite el acceso a la cámara para fotografiar la tarea.');
+        let result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.5 });
+        if (!result.canceled && result.assets?.[0]?.uri) {
           await completeTask(item.id, result.assets[0].uri); fetchRooms();
         }
       } else {
@@ -85,8 +87,8 @@ export default function TasksScreen() {
   };
 
   const handlePickIconImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.5, base64: true });
-    if (!result.canceled && result.assets[0].base64) {
+    let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.5, base64: true });
+    if (!result.canceled && result.assets?.[0]?.base64) {
       setImageUri(`data:image/jpeg;base64,${result.assets[0].base64}`);
     }
   };
@@ -147,6 +149,9 @@ export default function TasksScreen() {
       </View>
 
       <FlatList 
+        refreshing={loading}
+        onRefresh={fetchTasks}
+        ListHeaderComponent={error ? <Text style={{ color: '#B91C1C', paddingBottom: 16 }}>{error}</Text> : null}
         data={selectedRoomFilter ? tasks.filter(t => t.template.room_name === selectedRoomFilter) : tasks} 
         keyExtractor={t => t.id} 
         renderItem={({item}) => <TaskCard item={item} currentUserId={currentUserId} onComplete={() => handleComplete(item)} />} 

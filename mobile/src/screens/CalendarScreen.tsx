@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Platform } from 'react-native';
 import { useTaskStore } from '../store/useTaskStore';
 import { TaskCard } from '../components/TaskCard';
+import { useAuth } from '../context/AuthContext';
+import { getApiError } from '../services/api';
+import * as ImagePicker from 'expo-image-picker';
 
 LocaleConfig.locales['es'] = {
   monthNames: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
@@ -16,12 +19,26 @@ LocaleConfig.locales['es'] = {
 LocaleConfig.defaultLocale = 'es';
 
 export default function CalendarScreen({ navigation }: any) {
-  const { tasks, fetchTasks, completeTask } = useTaskStore();
-  const { user } = require('../context/AuthContext').useAuth();
+  const { tasks, fetchTasks, completeTask, error } = useTaskStore();
+  const { user } = useAuth();
   const currentUserId = user?.id || user?.uid;
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
   useEffect(() => { fetchTasks(); }, []);
+
+  const handleComplete = async (task: any) => {
+    try {
+      if (task.template.requires_photo) {
+        const permission = await ImagePicker.requestCameraPermissionsAsync();
+        if (!permission.granted) return Alert.alert('Permiso necesario', 'Permite el acceso a la cámara para fotografiar la tarea.');
+        const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.5 });
+        if (result.canceled || !result.assets?.[0]?.uri) return;
+        await completeTask(task.id, result.assets[0].uri);
+      } else {
+        await completeTask(task.id);
+      }
+    } catch (error) { Alert.alert('Error', getApiError(error)); }
+  };
 
   const getMarkedDates = () => {
     const marks: any = {};
@@ -57,6 +74,7 @@ export default function CalendarScreen({ navigation }: any) {
           }}
         />
         <View style={styles.tasksSection}>
+          {error && <Text style={{ color: '#B91C1C', marginBottom: 12 }}>{error}</Text>}
           <Text style={styles.sectionTitle}>Tareas del {selectedDate}</Text>
           {tasksForDate.length === 0 ? (
             <Text style={styles.emptyText}>No hay tareas para este día.</Text>
@@ -64,7 +82,7 @@ export default function CalendarScreen({ navigation }: any) {
             tasksForDate.map(t => (
               <View key={t.id} style={{marginBottom: 12}}>
                  {/* Envuelto en touchable para ir a detalles si se quiere */}
-                 <TaskCard item={t} currentUserId={currentUserId} onComplete={() => completeTask(t.id)} />
+                 <TaskCard item={t} currentUserId={currentUserId} onComplete={() => handleComplete(t)} />
               </View>
             ))
           )}

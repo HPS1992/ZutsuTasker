@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity, ActivityIndicator, Modal, TextInput, Platform, ScrollView, Alert, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getRewards, createReward, deleteReward, redeemReward, getRedemptions, completeRedemption, getRewardsHistory, api } from '../services/api';
+import { getRewards, createReward, deleteReward, redeemReward, getRedemptions, completeRedemption, getRewardsHistory, api, getApiError } from '../services/api';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { useAuth } from '../context/AuthContext';
 import { triggerWowEffect } from '../utils/SoundHaptics';
@@ -15,6 +15,7 @@ export default function MarketScreen() {
   const [rewards, setRewards] = useState<any[]>([]);
   const [redemptions, setRedemptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [historyModal, setHistoryModal] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
@@ -28,12 +29,14 @@ export default function MarketScreen() {
 
   const fetchData = () => {
     setLoading(true);
+    setError(null);
     Promise.all([
       getRewards(), 
       getRedemptions(),
       api.get('/users/dashboard').then(res => setIsAdmin(res.data.role === 'ADMIN')).catch(()=>{})
     ])
     .then(([rew, red]) => { setRewards(rew); setRedemptions(red); })
+    .catch(error => setError(getApiError(error)))
     .finally(() => setLoading(false));
   };
 
@@ -41,8 +44,8 @@ export default function MarketScreen() {
 
   
   const handlePickIconImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.5, base64: true });
-    if (!result.canceled && result.assets[0].base64) setImageUri(`data:image/jpeg;base64,${result.assets[0].base64}`);
+    let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.5, base64: true });
+    if (!result.canceled && result.assets?.[0]?.base64) setImageUri(`data:image/jpeg;base64,${result.assets[0].base64}`);
   };
 
   const handleCreate = async () => {
@@ -119,7 +122,9 @@ export default function MarketScreen() {
         </SafeAreaView>
       </LinearGradient>
 
-      {loading ? <ActivityIndicator style={{marginTop: 50}} color="#F59E0B"/> : (
+      {loading ? <ActivityIndicator style={{marginTop: 50}} color="#F59E0B"/> : error ? (
+        <TouchableOpacity onPress={fetchData} style={{ padding: 24 }}><Text style={{ color: '#B91C1C' }}>{error}</Text><Text style={{ color: '#5B3DF5', marginTop: 12 }}>Reintentar</Text></TouchableOpacity>
+      ) : (
         <FlatList
           ListHeaderComponent={
             redemptions.length > 0 ? (

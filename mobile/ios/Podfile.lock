@@ -21,8 +21,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - EXApplication (57.0.3):
-    - ExpoModulesCore
   - EXAV (16.0.8):
     - ExpoModulesCore
     - ReactCommon/turbomodule/core
@@ -57,8 +55,6 @@ PODS:
   - ExpoAsset (57.0.18):
     - ExpoModulesCore
   - ExpoBlur (57.0.3):
-    - ExpoModulesCore
-  - ExpoDevice (57.0.2):
     - ExpoModulesCore
   - ExpoDomWebView (57.0.1):
     - ExpoModulesCore
@@ -106,7 +102,7 @@ PODS:
   - ExpoModulesWorklets (57.0.20):
     - ExpoModulesCore
     - ExpoModulesJSI
-  - ExpoNotifications (57.0.21):
+  - ExpoSplashScreen (57.0.9):
     - ExpoModulesCore
   - FBLazyVector (0.86.3)
   - hermes-engine (250829098.0.17):
@@ -2052,13 +2048,11 @@ PODS:
 
 DEPENDENCIES:
   - "AsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
-  - EXApplication (from `../node_modules/expo-application/ios`)
   - EXAV (from `../node_modules/expo-av/ios`)
   - EXConstants (from `../node_modules/expo-constants/ios`)
   - Expo (from `../node_modules/expo`)
   - ExpoAsset (from `../node_modules/expo/node_modules/expo-asset/ios`)
   - ExpoBlur (from `../node_modules/expo-blur/ios`)
-  - ExpoDevice (from `../node_modules/expo-device/ios`)
   - "ExpoDomWebView (from `../node_modules/@expo/dom-webview/ios`)"
   - ExpoFileSystem (from `../node_modules/expo/node_modules/expo-file-system/ios/ExpoFileSystem.podspec`)
   - ExpoFont (from `../node_modules/expo-font/ios/ExpoFont.podspec`)
@@ -2070,7 +2064,7 @@ DEPENDENCIES:
   - ExpoModulesCore (from `../node_modules/expo-modules-core/ExpoModulesCore.podspec`)
   - ExpoModulesJSI (from `../node_modules/expo-modules-jsi/apple`)
   - ExpoModulesWorklets (from `../node_modules/expo-modules-core/ExpoModulesWorklets.podspec`)
-  - ExpoNotifications (from `../node_modules/expo-notifications/ios`)
+  - ExpoSplashScreen (from `../node_modules/expo-splash-screen/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
@@ -2153,8 +2147,6 @@ DEPENDENCIES:
 EXTERNAL SOURCES:
   AsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
-  EXApplication:
-    :path: "../node_modules/expo-application/ios"
   EXAV:
     :path: "../node_modules/expo-av/ios"
   EXConstants:
@@ -2165,8 +2157,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo/node_modules/expo-asset/ios"
   ExpoBlur:
     :path: "../node_modules/expo-blur/ios"
-  ExpoDevice:
-    :path: "../node_modules/expo-device/ios"
   ExpoDomWebView:
     :path: "../node_modules/@expo/dom-webview/ios"
   ExpoFileSystem:
@@ -2189,8 +2179,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-modules-jsi/apple"
   ExpoModulesWorklets:
     :podspec: "../node_modules/expo-modules-core/ExpoModulesWorklets.podspec"
-  ExpoNotifications:
-    :path: "../node_modules/expo-notifications/ios"
+  ExpoSplashScreen:
+    :path: "../node_modules/expo-splash-screen/ios"
   FBLazyVector:
     :path: "../node_modules/react-native/Libraries/FBLazyVector"
   hermes-engine:
@@ -2349,13 +2339,11 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AsyncStorage: 163ab23f6aa37a58b7f2379d0b4ee7ac84d6655c
-  EXApplication: a727f05eb8592f0bc764f6ab8d51eacc158652ec
   EXAV: b60fcf142fae6684d295bc28cd7cfcb3335570ea
   EXConstants: fdc6f92b1559e5bd69df9e684e8c7ba5d912890e
   Expo: 404a8f48f74f2d062911f965440380d98bfa879b
   ExpoAsset: a917b756b2e4fe12cef1ac3bca5fd849ddb2b919
   ExpoBlur: 975b78b65b3c8f475c44bd8f8b53948146b1ff9b
-  ExpoDevice: 5c638e530304a51992263ab5c1cab726f992b9dc
   ExpoDomWebView: beaec034e51bd028428b98bb1f2633ab79c6d095
   ExpoFileSystem: 28778f942725170102f7c6cf4dee05a526ddacd0
   ExpoFont: f8198a952ba2ff53c9b393b5269ea435f232cfc3
@@ -2367,7 +2355,7 @@ SPEC CHECKSUMS:
   ExpoModulesCore: 5afec885acc7c38917f73563717adff995a130e8
   ExpoModulesJSI: 383849017851b1ebacbd78cfaa32b18b6152585e
   ExpoModulesWorklets: 40d29262efc034e4357f2713e6037a41a27218d6
-  ExpoNotifications: d432d5b2904f700a6a2dc29eca52e531c4cc1611
+  ExpoSplashScreen: e771da4f26d550ea4fd067d8fb942657e47bb846
   FBLazyVector: 2138c6c2ab66c31bf5754dc18097fbc498a49c7f
   hermes-engine: 63c5db7d529c36335fada6582fd293ae2a105d77
   RCTDeprecation: 96f68ebf33f8762466b01d57d6e873c4f30efb07

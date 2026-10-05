@@ -97,6 +97,8 @@ model Reward {
   id           String             @id @default(uuid())
   group_id     String
   title        String
+  icon_name    String?            @default("gift")
+  image_uri    String?
   cost_points  Int
   yearly_limit Int                @default(1)
   is_active    Boolean            @default(true)

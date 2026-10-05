@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Switch, TouchableOpacity, TextInput, ScrollView, Platform, Modal, Share } from 'react-native';
-import { api, getMembers, transferPoints } from '../services/api';
+import { View, Text, StyleSheet, SafeAreaView, Switch, TouchableOpacity, TextInput, ScrollView, Platform, Modal, Share, Alert } from 'react-native';
+import { api, getMembers, transferPoints, getApiError } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { triggerWowEffect } from '../utils/SoundHaptics';
@@ -23,6 +23,18 @@ export default function ProfileScreen() {
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  const changeVacationMode = async (value: boolean) => {
+    const previousValue = vacationMode;
+    setVacationMode(value);
+    try { await api.post('/users/vacation', { is_on_vacation: value }); }
+    catch (error) { setVacationMode(previousValue); Alert.alert('Error', getApiError(error)); }
+  };
+
+  const handleLogout = async () => {
+    try { await logout(); }
+    catch (error) { Alert.alert('Error', getApiError(error)); }
+  };
 
   const openTransfer = (member: any) => { setSelectedMember(member); setTransferAmount(''); setTransferModal(true); };
   const handleTransfer = async () => {
@@ -72,7 +84,7 @@ export default function ProfileScreen() {
                <Text style={styles.settingText}>🌴 Modo Vacaciones</Text>
                <Text style={styles.helperText}>Pausa tareas temporalmente</Text>
             </View>
-            <Switch value={vacationMode} onValueChange={(val) => { setVacationMode(val); api.post('/users/vacation', { is_on_vacation: val }); }} trackColor={{true: '#F59E0B'}} />
+            <Switch value={vacationMode} onValueChange={changeVacationMode} trackColor={{true: '#F59E0B'}} />
           </View>
         </View>
 
@@ -108,7 +120,7 @@ export default function ProfileScreen() {
           ))}
         </View>
 
-        <TouchableOpacity onPress={logout} style={styles.logoutButton}>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
           <Text style={styles.logoutText}>Cerrar Sesión</Text>
         </TouchableOpacity>
         
