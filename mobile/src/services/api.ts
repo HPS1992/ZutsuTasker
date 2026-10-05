@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
 
-const API_URL = Platform.OS === 'web' && typeof window !== 'undefined' ? `${window.location.origin}/api` : 'http://localhost:3000/api';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://zutsu-tasker.vercel.app/api';
 export const api = axios.create({ baseURL: API_URL, headers: { 'Content-Type': 'application/json' } });
 
 export const getTasks = async () => (await api.get(`/tasks`)).data;
