@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTaskStore } from '../store/useTaskStore';
 import { LinearGradient } from 'expo-linear-gradient';
 
-export const TaskCard = ({ item, currentUserId, onComplete }: any) => {
+export const TaskCard = ({ item, currentUserId, onComplete, onEdit }: any) => {
   const { claimTask, stealTask, approveTask } = useTaskStore();
   const assignedUserId = typeof item.assigned_to === 'string' ? item.assigned_to : item.assigned_to?.id;
   const isMine = assignedUserId === currentUserId;
@@ -37,8 +37,15 @@ export const TaskCard = ({ item, currentUserId, onComplete }: any) => {
             {item.template.requires_photo && <Text style={styles.photoRequiredText}>📸 Requiere Foto</Text>}
           </View>
         </View>
-        <View style={[styles.pointsBadge, hasBounty && styles.bountyBadge]}>
-          <Text style={[styles.pointsText, hasBounty && styles.bountyText]}>{hasBounty ? '🔥' : '⭐'} {displayPoints} pts</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          {onEdit && (
+            <TouchableOpacity onPress={onEdit} style={styles.editBtn}>
+              <Ionicons name="pencil" size={16} color="#64748B" />
+            </TouchableOpacity>
+          )}
+          <View style={[styles.pointsBadge, hasBounty && styles.bountyBadge]}>
+            <Text style={[styles.pointsText, hasBounty && styles.bountyText]}>{hasBounty ? '🔥' : '⭐'} {displayPoints} pts</Text>
+          </View>
         </View>
       </View>
 
@@ -90,6 +97,7 @@ const styles = StyleSheet.create({
   bountyBadge: { backgroundColor: '#FEE2E2' },
   pointsText: { color: '#B45309', fontWeight: '900', fontSize: 14 },
   bountyText: { color: '#E11D48' },
+  editBtn: { backgroundColor: '#F1F5F9', padding: 8, borderRadius: 12 },
   detailsRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
   infoChip: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F8FAFC', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#F1F5F9' },
   infoText: { color: '#64748B', fontSize: 13, fontWeight: '600' },

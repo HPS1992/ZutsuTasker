@@ -14,6 +14,8 @@ export function getApiError(error: unknown): string {
 
 export const getTasks = async () => (await api.get(`/tasks`)).data;
 export const createTask = async (data: any) => (await api.post(`/tasks`, data)).data;
+export const updateTask = async (taskId: string, data: any) => (await api.put(`/tasks/${taskId}`, data)).data;
+export const deleteTask = async (taskId: string) => (await api.delete(`/tasks/${taskId}`)).data;
 export const completeTask = async (taskId: string, photoUri?: string) => (await api.post(`/tasks/${taskId}/complete`, { photoUri })).data;
 export const approveTask = async (taskId: string) => (await api.post(`/tasks/${taskId}/approve`)).data;
 export const claimTask = async (taskId: string) => (await api.post(`/tasks/${taskId}/claim`)).data;

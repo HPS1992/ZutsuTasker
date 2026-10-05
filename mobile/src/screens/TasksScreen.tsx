@@ -47,6 +47,7 @@ export default function TasksScreen() {
   const [roomName, setRoomName] = useState('General');
   const [roomIcon, setRoomIcon] = useState('home');
   const [startDateStr, setStartDateStr] = useState(new Date().toISOString().split('T')[0]);
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
 
   const fetchRooms = async () => {
     try { const res = await api.get('/tasks/rooms/health'); setRooms(res.data); } catch (e) {}
@@ -93,18 +94,54 @@ export default function TasksScreen() {
     }
   };
 
+  const handleEditTask = (item: any) => {
+    setEditingTaskId(item.id);
+    setTitle(item.template.title);
+    setPoints(item.template.points.toString());
+    setFreq(item.template.frequency);
+    setAssignType(item.template.assignment_type);
+    setFixedUser(item.template.fixed_user_id);
+    setRequiresPhoto(item.template.requires_photo);
+    setIconName(item.template.icon_name || 'checkbox');
+    setImageUri(item.template.image_uri);
+    setRoomName(item.template.room_name || 'General');
+    setRoomIcon(item.template.room_icon || 'home');
+    setStartDateStr(new Date(item.due_date).toISOString().split('T')[0]);
+    setModalVisible(true);
+  };
+
+  const handleOpenCreate = () => {
+    setEditingTaskId(null);
+    setTitle('');
+    setPoints('10');
+    setFreq('ONCE');
+    setRequiresPhoto(false);
+    setIconName('checkbox');
+    setImageUri(null);
+    setRoomName('General');
+    setRoomIcon('home');
+    setStartDateStr(new Date().toISOString().split('T')[0]);
+    setModalVisible(true);
+  };
+
   const handleCreate = async () => {
     if (!title) return;
     try {
-      await api.post('/tasks', {
-        title, points, frequency: freq, start_date: startDateStr, end_date: null,
+      const payload = {
+        title, points, frequency: freq, start_date: startDateStr, due_date: startDateStr,
         assignment_type: assignType, fixed_user_id: fixedUser, requires_photo: requiresPhoto, icon_name: iconName, image_uri: imageUri, room_name: roomName, room_icon: roomIcon
-      });
+      };
+      if (editingTaskId) {
+        await useTaskStore.getState().updateTask(editingTaskId, payload);
+      } else {
+        await api.post('/tasks', payload);
+      }
       setModalVisible(false); fetchTasks(); fetchRooms();
     } catch (e: any) { alert('Error: ' + e.message); }
   };
 
   const currentUserId = user?.id || user?.uid;
+  const isAdmin = members.find(m => m.user_id === currentUserId)?.role === 'ADMIN';
 
   return (
     <View style={styles.container}>
@@ -154,11 +191,11 @@ export default function TasksScreen() {
         ListHeaderComponent={error ? <Text style={{ color: '#B91C1C', paddingBottom: 16 }}>{error}</Text> : null}
         data={selectedRoomFilter ? tasks.filter(t => t.template.room_name === selectedRoomFilter) : tasks} 
         keyExtractor={t => t.id} 
-        renderItem={({item}) => <TaskCard item={item} currentUserId={currentUserId} onComplete={() => handleComplete(item)} />} 
+        renderItem={({item}) => <TaskCard item={item} currentUserId={currentUserId} onComplete={() => handleComplete(item)} onEdit={isAdmin ? () => handleEditTask(item) : undefined} />} 
         contentContainerStyle={styles.list} 
       />
 
-      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
+      <TouchableOpacity style={styles.fab} onPress={handleOpenCreate}>
         <LinearGradient colors={['#F59E0B', '#EF4444']} style={styles.fabGradient}>
           <Ionicons name="add" size={32} color="#fff" />
         </LinearGradient>
@@ -172,7 +209,7 @@ export default function TasksScreen() {
           <View style={styles.modalContent}>
             <View style={styles.modalDragHandle} />
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={styles.modalTitle}>Nueva Tarea</Text>
+              <Text style={styles.modalTitle}>{editingTaskId ? 'Editar Tarea' : 'Nueva Tarea'}</Text>
               
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginBottom: 20}}>
                 {PREDEFINED_TASKS.map((pt, i) => (
@@ -247,7 +284,7 @@ export default function TasksScreen() {
               <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.cancelButton}><Text style={styles.cancelButtonText}>Cancelar</Text></TouchableOpacity>
               <TouchableOpacity onPress={handleCreate} style={{flex: 1}}>
                 <LinearGradient colors={['#7055F6', '#5B3DF5']} style={styles.saveButton}>
-                  <Text style={styles.saveButtonText}>Guardar Tarea</Text>
+                  <Text style={styles.saveButtonText}>{editingTaskId ? 'Guardar Cambios' : 'Guardar Tarea'}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>

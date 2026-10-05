@@ -170,6 +170,48 @@ router.post('/:id/steal', requireAuth, async (req, res) => {
   } catch (err: any) { console.error("TASK_ROUTE_ERROR", err); res.status(500).json({ error: err.message }); }
 });
 
+router.put('/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, points, assignment_type, fixed_user_id, requires_photo, icon_name, room_name, room_icon, due_date } = req.body;
+    
+    // Buscar la instancia para obtener el template_id
+    const instance = await prisma.taskInstance.findUnique({ where: { id } });
+    if (!instance) return res.status(404).json({ error: 'Task not found' });
+
+    // Actualizar el template
+    await prisma.taskTemplate.update({
+      where: { id: instance.template_id },
+      data: {
+        title,
+        description,
+        points: points ? parseInt(points) : undefined,
+        assignment_type,
+        fixed_user_id: assignment_type === 'FIXED' ? fixed_user_id : null,
+        requires_photo,
+        icon_name,
+        room_name,
+        room_icon
+      }
+    });
+
+    // Actualizar la instancia si procede (asignación y fecha límite)
+    const updatedInstance = await prisma.taskInstance.update({
+      where: { id },
+      data: {
+        assigned_to: assignment_type === 'FIXED' ? fixed_user_id : instance.assigned_to,
+        due_date: due_date ? new Date(due_date) : undefined
+      },
+      include: { template: true, assigned_user: true }
+    });
+
+    res.json(updatedInstance);
+  } catch (err: any) {
+    console.error("TASK_ROUTE_ERROR", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
     await prisma.taskInstance.delete({ where: { id: req.params.id } });

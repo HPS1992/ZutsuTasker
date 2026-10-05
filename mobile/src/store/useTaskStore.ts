@@ -12,6 +12,7 @@ interface TaskState {
   approveTask: (id: string) => Promise<void>;
   claimTask: (id: string) => Promise<void>;
   stealTask: (id: string) => Promise<void>;
+  updateTask: (id: string, data: any) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
 }
 
@@ -47,6 +48,10 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       alert('¡Robo completado! ' + res.message);
       const updated = await getTasks(); set({ tasks: updated });
     } catch(e: any) { alert('Error al robar: ' + (e.response?.data?.error || e.message)); }
+  },
+  updateTask: async (id: string, data: any) => {
+    await api.put(`/tasks/${id}`, data);
+    const updated = await getTasks(); set({ tasks: updated });
   },
   deleteTask: async (id: string) => {
     await api.delete(`/tasks/${id}`);
