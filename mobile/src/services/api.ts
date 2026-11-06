@@ -3,6 +3,23 @@ import axios from 'axios';
 const API_URL = (typeof process !== 'undefined' && process.env && process.env.EXPO_PUBLIC_API_URL) ? process.env.EXPO_PUBLIC_API_URL : 'https://zutsu-tasker.vercel.app/api';
 export const api = axios.create({ baseURL: API_URL, timeout: 15000, headers: { 'Content-Type': 'application/json' } });
 
+let onUnauthorizedHandler: (() => void) | null = null;
+export const setOnUnauthorized = (handler: () => void) => {
+  onUnauthorizedHandler = handler;
+};
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      if (onUnauthorizedHandler) {
+        onUnauthorizedHandler();
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export function getApiError(error: unknown): string {
   if (axios.isAxiosError(error)) {
     const message = error.response?.data?.error;

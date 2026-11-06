@@ -4,11 +4,13 @@ import { api, createGroup, joinGroup } from '../services/api';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { registerForPushNotificationsAsync } from '../services/notifications';
+import { useAuth } from '../context/AuthContext';
 
 export default function HomeScreen() {
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const navigation = useNavigation<any>();
+  const { logout } = useAuth();
 
   // States for No Group
   const [newGroupName, setNewGroupName] = useState('');
@@ -18,7 +20,13 @@ export default function HomeScreen() {
     setError(null);
     api.get('/users/dashboard')
       .then(res => setData(res.data))
-      .catch(err => setError(err.message));
+      .catch(err => {
+        if (err.response?.status === 401) {
+          logout();
+          return;
+        }
+        setError(err.message);
+      });
   };
 
   useFocusEffect(
@@ -43,7 +51,33 @@ export default function HomeScreen() {
     catch(e) { Alert.alert('Error', 'Código inválido'); }
   };
 
-  if (error) return <SafeAreaView style={styles.container}><Text style={{padding:20, color:'red'}}>Error cargando: {error}</Text><TouchableOpacity onPress={fetchDashboard}><Text style={{ padding: 20, color: '#4F46E5' }}>Reintentar</Text></TouchableOpacity></SafeAreaView>;
+  if (error) {
+    return (
+      <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center', padding: 24 }]}>
+        <Ionicons name="alert-circle-outline" size={54} color="#EF4444" style={{ marginBottom: 12 }} />
+        <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1E293B', textAlign: 'center', marginBottom: 8 }}>
+          No se pudo sincronizar
+        </Text>
+        <Text style={{ color: '#64748B', textAlign: 'center', marginBottom: 24 }}>
+          {error.includes('401') ? 'Tu sesión ha expirado o no es válida.' : error}
+        </Text>
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          <TouchableOpacity
+            style={{ backgroundColor: '#EEF2FF', paddingVertical: 12, paddingHorizontal: 20, borderRadius: 12 }}
+            onPress={fetchDashboard}
+          >
+            <Text style={{ color: '#4F46E5', fontWeight: 'bold' }}>Reintentar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ backgroundColor: '#FEE2E2', paddingVertical: 12, paddingHorizontal: 20, borderRadius: 12 }}
+            onPress={logout}
+          >
+            <Text style={{ color: '#DC2626', fontWeight: 'bold' }}>Cerrar sesión</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
   if (!data) return <SafeAreaView style={styles.container}><ActivityIndicator style={{marginTop: 50}} color="#4F46E5" /></SafeAreaView>;
 
   // Si el usuario acaba de registrarse y no tiene grupo

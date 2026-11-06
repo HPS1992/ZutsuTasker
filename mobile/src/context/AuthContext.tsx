@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { api } from '../services/api';
+import { api, setOnUnauthorized } from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface AppUser {
@@ -35,6 +35,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setOnUnauthorized(() => {
+      void logout();
+    });
+
     let active = true;
     const restoreSession = async () => {
       try {

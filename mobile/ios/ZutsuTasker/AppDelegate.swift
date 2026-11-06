@@ -8,6 +8,7 @@ class AppDelegate: ExpoAppDelegate {
 
   var reactNativeDelegate: ExpoReactNativeFactoryDelegate?
   var reactNativeFactory: RCTReactNativeFactory?
+  var launchOptions: [UIApplication.LaunchOptionsKey: Any]?
 
   public override func application(
     _ application: UIApplication,
@@ -19,16 +20,20 @@ class AppDelegate: ExpoAppDelegate {
 
     reactNativeDelegate = delegate
     reactNativeFactory = factory
-
-#if os(iOS) || os(tvOS)
-    window = UIWindow(frame: UIScreen.main.bounds)
-    factory.startReactNative(
-      withModuleName: "main",
-      in: window,
-      launchOptions: launchOptions)
-#endif
+    self.launchOptions = launchOptions
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  // MARK: - UISceneSession Lifecycle
+  public func application(
+    _ application: UIApplication,
+    configurationForConnecting connectingSceneSession: UISceneSession,
+    options: UIScene.ConnectionOptions
+  ) -> UISceneConfiguration {
+    let configuration = UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+    configuration.delegateClass = SceneDelegate.self
+    return configuration
   }
 
   // Linking API
@@ -67,3 +72,32 @@ class ReactNativeDelegate: ExpoReactNativeFactoryDelegate {
 #endif
   }
 }
+
+@objc(SceneDelegate)
+class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+  var window: UIWindow?
+
+  func scene(
+    _ scene: UIScene,
+    willConnectTo session: UISceneSession,
+    options connectionOptions: UIScene.ConnectionOptions
+  ) {
+    guard let windowScene = (scene as? UIWindowScene) else { return }
+
+    let window = UIWindow(windowScene: windowScene)
+    self.window = window
+
+    if let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+       let factory = appDelegate.reactNativeFactory {
+      appDelegate.window = window
+      factory.startReactNative(
+        withModuleName: "main",
+        in: window,
+        launchOptions: appDelegate.launchOptions
+      )
+    }
+
+    window.makeKeyAndVisible()
+  }
+}
+
